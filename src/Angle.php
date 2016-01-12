@@ -4,7 +4,7 @@ namespace ML_Express\Graphics;
 
 class Angle
 {
-	public $radians, $sin, $cos;
+	private $radians, $sin, $cos;
 
 	/**
 	 * Returns a new <code>Angle</code> instance.
@@ -31,7 +31,7 @@ class Angle
 	}
 
 	/**
-	 * Sets angle in radians.
+	 * Resets the angle in radians.
 	 *
 	 * @param  float  $radians
 	 */
@@ -43,7 +43,7 @@ class Angle
 	}
 
 	/**
-	 * Sets angle in degrees.
+	 * Resets the angle in degrees.
 	 *
 	 * @param  float  $degrees
 	 */
@@ -53,7 +53,7 @@ class Angle
 	}
 
 	/**
-	 * Adds angle in radians.
+	 * Adds an angle in radians.
 	 *
 	 * @param  float  $radians
 	 */
@@ -63,7 +63,7 @@ class Angle
 	}
 
 	/**
-	 * Adds angle in degrees.
+	 * Adds an angle in degrees.
 	 *
 	 * @param  float  $degrees
 	 */

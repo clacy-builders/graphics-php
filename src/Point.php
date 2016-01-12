@@ -2,6 +2,8 @@
 
 namespace ML_Express\Graphics;
 
+use ML_Express\Graphics\Angle;
+
 class Point
 {
 	private $x, $y;
