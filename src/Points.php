@@ -7,29 +7,32 @@ use ML_Express\Graphics\Angle;
 
 class Points implements \IteratorAggregate
 {
-	private $points = [];
-	private $ccw = false;
+	private $points;
+	private $ccw;
 
-	public static function create()
+	/**
+	 * Returns a new <code>Points</code> instance.
+	 *
+	 * @param  boolean  $ccw  Whether the following points should be added counterclockwise or not.
+	 * @return Points
+	 */
+	public static function create($ccw = false)
 	{
-		return new Points();
+		$points = new Points();
+		$points->points = [];
+		$points->ccw = $ccw;
+		return $points;
 	}
 
 	/**
 	 * Hint that following points should be added counterclockwise.
+	 *
+	 * @param  boolean  $ccw
+	 * @return Points
 	 */
-	public function ccw()
+	public function ccw($ccw = true)
 	{
-		$this->ccw = true;
-		return $this;
-	}
-
-	/**
-	 * Hint that following points should be added clockwise.
-	 */
-	public function cw()
-	{
-		$this->ccw = false;
+		$this->ccw = $ccw;
 		return $this;
 	}
 
@@ -67,7 +70,7 @@ class Points implements \IteratorAggregate
 	 * Calculates the points for a regular polygon.
 	 *
 	 * @param  Point  $center
-	 * @param  int    $n
+	 * @param  int    $n       Number of corners.
 	 * @param  float  $radius
 	 * @return Points
 	 */
@@ -77,7 +80,7 @@ class Points implements \IteratorAggregate
 	}
 
 	/**
-	 * Calculates the Points for a star.
+	 * Calculates the Points for a regular star polygon.
 	 *
 	 * @param  Point          $center
 	 * @param  int            $n          Number of corners of the underlying polygon.
