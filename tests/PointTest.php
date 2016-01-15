@@ -54,6 +54,48 @@ class PointTest extends \PHPUnit_Framework_TestCase
 				->scale(Point::create($cx, $cy), $factor));
 	}
 
+	public function skewXProvider()
+	{
+		return array(
+				[0,10, 0,0, 45, 10,10],
+				[10,10, 0,0, 45, 20,10],
+				[0,-10, 0,0, 45, -10,-10],
+				[0,10, 40,40, 45, -30,10],
+				[10,10, 40,40, 45, -20,10],
+				[0,-10, 40,40, 45, -50,-10]
+		);
+	}
+
+	/**
+	 * @dataProvider skewXProvider
+	 */
+	public function testSkewX($x, $y, $cx, $cy, $degrees, $expectedX, $expectedY)
+	{
+		$this->assertEqualCoordinates($expectedX, $expectedY, Point::create($x, $y)
+				->skewX(Point::create($cx, $cy), Angle::byDegrees($degrees)));
+	}
+
+	public function skewYProvider()
+	{
+		return array(
+				[10,0, 0,0, 45, 10,10],
+				[10,10, 0,0, 45, 10,20],
+				[-10,0, 0,0, 45, -10,-10],
+				[10,0, 40,40, 45, 10,-30],
+				[10,10, 40,40, 45, 10,-20],
+				[-10,0, 40,40, 45, -10,-50]
+		);
+	}
+
+	/**
+	 * @dataProvider skewYProvider
+	 */
+	public function testSkewY($x, $y, $cx, $cy, $degrees, $expectedX, $expectedY)
+	{
+		$this->assertEqualCoordinates($expectedX, $expectedY, Point::create($x, $y)
+				->skewY(Point::create($cx, $cy), Angle::byDegrees($degrees)));
+	}
+
 	public function testTranslate()
 	{
 		$this->assertEqualCoordinates(25, 25, Point::create(20.5, 10)->translate(4.5, 15));

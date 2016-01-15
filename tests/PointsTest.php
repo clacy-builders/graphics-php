@@ -12,6 +12,22 @@ use ML_Express\Graphics\Angle;
 
 class PointsTest extends \PHPUnit_Framework_TestCase
 {
+	public function testAddPoints()
+	{
+		$expected = [];
+		$points1 = Points::create();
+		foreach ([[2, 2], [3, 2], [3, 3], [2, 3]] as $p) {
+			$points1->addPoint(Point::create($p[0], $p[1]));
+			$expected[] = $p;
+		}
+		$points2 = Points::create();
+		foreach ([[0, 0], [1, 0], [1, 1], [0, 1]] as $p) {
+			$points2->addPoint(Point::create($p[0], $p[1]));
+			$expected[] = $p;
+		}
+		$this->assertEqualPointArrays($expected, $points1->addPoints($points2));
+	}
+
 	public function rectangleProvider()
 	{
 		return array(

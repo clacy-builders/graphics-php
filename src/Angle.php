@@ -4,7 +4,7 @@ namespace ML_Express\Graphics;
 
 class Angle
 {
-	private $radians, $sin, $cos;
+	private $radians, $sin, $cos, $tan;
 
 	/**
 	 * Returns a new <code>Angle</code> instance.
@@ -40,6 +40,7 @@ class Angle
 		$this->radians = $radians;
 		$this->sin = sin($radians);
 		$this->cos = cos($radians);
+		$this->tan = tan($radians);
 	}
 
 	/**
@@ -73,7 +74,7 @@ class Angle
 	}
 
 	/**
-	 * Read access to <code>radians</code>, <code>sin</code>, <code>cos</code>.
+	 * Read access to <code>radians</code>, <code>sin</code>, <code>cos</code>, <code>tan</code>.
 	 */
 	public function __get($name)
 	{

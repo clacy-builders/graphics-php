@@ -78,6 +78,32 @@ class Point
 	}
 
 	/**
+	 * A skew transformation along the X-axis.
+	 *
+	 * @param  Point  $center
+	 * @param  Angle  $angle
+	 * @return Point
+	 */
+	public function skewX(Point $center, Angle $angle)
+	{
+		$this->x += $angle->tan * ($this->y - $center->y);
+		return $this;
+	}
+
+	/**
+	 * A skew transformation along the Y-axis.
+	 *
+	 * @param  Point  $center
+	 * @param  Angle  $angle
+	 * @return Point
+	 */
+	public function skewY(Point $center, Angle $angle)
+	{
+		$this->y += $angle->tan * ($this->x - $center->x);
+		return $this;
+	}
+
+	/**
 	 * Moves current point along both axes.
 	 *
 	 * @param  float  $deltaX

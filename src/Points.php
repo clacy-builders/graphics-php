@@ -47,6 +47,20 @@ class Points implements \IteratorAggregate
 		return $this->points[] = $point->copy();
 	}
 
+	/**
+	 * Adds points.
+	 *
+	 * @param  Points  $points
+	 * @return Points
+	 */
+	public function addPoints(Points $points)
+	{
+		foreach ($points as $point)
+		{
+			$this->addPoint($point);
+		}
+		return $this;
+	}
 
 	/**
 	 * Calculates the points for a rectangle.
@@ -159,7 +173,7 @@ class Points implements \IteratorAggregate
 	}
 
 	/**
-	 * Scales points along the X-Axis.
+	 * Scales points along the X-axis.
 	 *
 	 * @param  Point  $center
 	 * @param  float  $factor
@@ -174,7 +188,7 @@ class Points implements \IteratorAggregate
 	}
 
 	/**
-	 * Scales points along the Y-Axis.
+	 * Scales points along the Y-axis.
 	 *
 	 * @param  Point  $center
 	 * @param  float  $factor
@@ -184,6 +198,36 @@ class Points implements \IteratorAggregate
 	{
 		foreach ($this->points as $point) {
 			$point->scaleY($center, $factor);
+		}
+		return $this;
+	}
+
+	/**
+	 * A skew transformation along the X-axis.
+	 *
+	 * @param  Point  $center
+	 * @param  Angle  $angle
+	 * @return Points
+	 */
+	public function skewX(Point $center, Angle $angle)
+	{
+		foreach ($this->points as $point) {
+			$point->skewX($center, $angle);
+		}
+		return $this;
+	}
+
+	/**
+	 * A skew transformation along the Y-axis.
+	 *
+	 * @param  Point  $center
+	 * @param  Angle  $angle
+	 * @return Points
+	 */
+	public function skewY(Point $center, Angle $angle)
+	{
+		foreach ($this->points as $point) {
+			$point->skewY($center, $angle);
 		}
 		return $this;
 	}
@@ -204,7 +248,7 @@ class Points implements \IteratorAggregate
 	}
 
 	/**
-	 * Translates points along the X-Axis.
+	 * Translates points along the X-axis.
 	 *
 	 * @param  float  $deltaX
 	 * @param  float  $deltaY
@@ -219,7 +263,7 @@ class Points implements \IteratorAggregate
 	}
 
 	/**
-	 * Translates points along the Y-Axis.
+	 * Translates points along the Y-axis.
 	 *
 	 * @param  float  $deltaX
 	 * @param  float  $deltaY
