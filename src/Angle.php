@@ -31,6 +31,21 @@ class Angle
 	}
 
 	/**
+	 * Returns a copy of the current angle.
+	 *
+	 * @return Angle
+	 */
+	public function copy()
+	{
+		$angle = new Angle();
+		$angle->radians = $this->radians;
+		$angle->sin = $this->sin;
+		$angle->cos = $this->cos;
+		$angle->tan = $this->tan;
+		return $angle;
+	}
+
+	/**
 	 * Resets the angle in radians.
 	 *
 	 * @param  float  $radians
@@ -41,6 +56,7 @@ class Angle
 		$this->sin = sin($radians);
 		$this->cos = cos($radians);
 		$this->tan = tan($radians);
+		return $this;
 	}
 
 	/**
@@ -51,6 +67,7 @@ class Angle
 	public function setDegrees($degrees)
 	{
 		$this->set(deg2rad($degrees));
+		return $this;
 	}
 
 	/**
@@ -61,6 +78,7 @@ class Angle
 	public function add($radians)
 	{
 		$this->set($this->radians + $radians);
+		return $this;
 	}
 
 	/**
@@ -71,6 +89,7 @@ class Angle
 	public function addDegrees($degrees)
 	{
 		$this->add(deg2rad($degrees));
+		return $this;
 	}
 
 	/**

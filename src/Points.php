@@ -99,16 +99,13 @@ class Points implements \IteratorAggregate
 	 * @param  Point          $center
 	 * @param  int            $n          Number of corners of the underlying polygon.
 	 * @param  float          $radius
-	 * @param  float|float[]  $starRadii  Related to <code>$radius</code>.
+	 * @param  float|float[]  $starRadii
 	 * @return Points
 	 */
 	public function star(Point $center, $n, $radius, $starRadii = [])
 	{
 		if (!is_array($starRadii)) {
 			$starRadii = [$starRadii];
-		}
-		foreach ($starRadii as $i => $r) {
-			$starRadii[$i] *= $radius;
 		}
 		$radii = array_merge([$radius], $starRadii);
 		$count = count($radii);
@@ -129,7 +126,7 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  Point  $center
 	 * @param  Angle  $start
-	 * @param  Angle  $stop
+	 * @param  Angle  $stop    Must be greater than <code>$start</code>.
 	 * @param  float  $radius
 	 * @return Points
 	 */
@@ -139,6 +136,26 @@ class Points implements \IteratorAggregate
 		$this->addPoint($center)->translateX($radius)->rotate($center, $start);
 		$this->addPoint($center)->translateX($radius)->rotate($center, $stop);
 		$this->reverseIfCcw(2);
+		return $this;
+	}
+
+	/**
+	 * Calculates the points for a sector of a ring.
+	 *
+	 * @param  Point  $center
+	 * @param  Angle  $start
+	 * @param  Angle  $stop         Must be greater than <code>$start</code>.
+	 * @param  float  $radius
+	 * @param  float  $innerRadius
+	 * @return Points
+	 */
+	public function ringSector(Point $center, Angle $start, Angle $stop, $radius, $innerRadius)
+	{
+		if ($this->ccw) { $swap = $start; $start = $stop; $stop = $swap; }
+		$this->addPoint($center)->translateX($radius)->rotate($center, $start);
+		$this->addPoint($center)->translateX($radius)->rotate($center, $stop);
+		$this->addPoint($center)->translateX($innerRadius)->rotate($center, $stop);
+		$this->addPoint($center)->translateX($innerRadius)->rotate($center, $start);
 		return $this;
 	}
 
