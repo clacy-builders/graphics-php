@@ -7,90 +7,55 @@ use ML_Express\Graphics\Angle;
 
 class Points implements \IteratorAggregate
 {
-	private $points;
-	private $ccw;
+	private $points = [];
+	private $ignoreFirst;
 
-	/**
-	 * Returns a new <code>Points</code> instance.
-	 *
-	 * @param  boolean  $ccw  Whether the following points should be added counterclockwise or not.
-	 * @return Points
-	 */
-	public static function create($ccw = false)
+	protected function __construct($ignoreFirst = true)
 	{
-		$points = new Points();
-		$points->points = [];
-		$points->ccw = $ccw;
-		return $points;
-	}
-
-	/**
-	 * Hint that following points should be added counterclockwise.
-	 *
-	 * @param  boolean  $ccw
-	 * @return Points
-	 */
-	public function ccw($ccw = true)
-	{
-		$this->ccw = $ccw;
-		return $this;
+		$this->ignoreFirst = $ignoreFirst;
 	}
 
 	/**
 	 * Adds a point.
 	 *
 	 * @param  Point  $point
-	 * @return Point;
+	 * @return The copied point.
 	 */
-	public function addPoint(Point $point)
+	protected function addPoint(Point $point)
 	{
 		return $this->points[] = $point->copy();
 	}
 
 	/**
-	 * Adds points.
-	 *
-	 * @param  Points  $points
-	 * @return Points
-	 */
-	public function addPoints(Points $points)
-	{
-		foreach ($points as $point)
-		{
-			$this->addPoint($point);
-		}
-		return $this;
-	}
-
-	/**
 	 * Calculates the points for a rectangle.
 	 *
-	 * @param  Point  $corner
-	 * @param  float  $width
-	 * @param  float  $height
-	 * @return Points
+	 * @param  Point    $corner  The top left corner.
+	 * @param  float    $width
+	 * @param  float    $height
+	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
 	 */
-	public function rectangle(Point $corner, $width, $height)
+	public static function rectangle(Point $corner, $width, $height, $ccw = false)
 	{
-		$this->addPoint($corner);
-		$this->addPoint($corner)->translateX($width);
-		$this->addPoint($corner)->translate($width, $height);
-		$this->addPoint($corner)->translateY($height);
-		$this->reverseIfCcw(3);
-		return $this;
+		$points = new Points();
+		$points->addPoint($corner);
+		$points->addPoint($corner)->translateX($width);
+		$points->addPoint($corner)->translate($width, $height);
+		$points->addPoint($corner)->translateY($height);
+		$points->reverseIfCcw($ccw);
+		return $points;
 	}
 
 	/**
 	 * Calculates the points for a regular polygon.
 	 *
-	 * @param  Point  $center
-	 * @param  int    $n       Number of corners.
-	 * @param  float  $radius
-	 * @return Points
+	 * @param  Point    $center
+	 * @param  int      $n       Number of corners.
+	 * @param  float    $radius
+	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
 	 */
-	public function polygon(Point $center, $n, $radius)
+	public static function polygon(Point $center, $n, $radius, $ccw = false)
 	{
-		return $this->star($center, $n, $radius, []);
+		return self::star($center, $n, $radius, [], $ccw);
 	}
 
 	/**
@@ -100,10 +65,11 @@ class Points implements \IteratorAggregate
 	 * @param  int            $n          Number of corners of the underlying polygon.
 	 * @param  float          $radius
 	 * @param  float|float[]  $starRadii
-	 * @return Points
+	 * @param  boolean        $ccw        Whether to listen the points counterclockwise or not.
 	 */
-	public function star(Point $center, $n, $radius, $starRadii = [])
+	public static function star(Point $center, $n, $radius, $starRadii = [], $ccw = false)
 	{
+		$points = new Points();
 		if (!is_array($starRadii)) {
 			$starRadii = [$starRadii];
 		}
@@ -113,12 +79,12 @@ class Points implements \IteratorAggregate
 		$angle = Angle::create(0);
 		for ($i = 0; $i < $n; $i++) {
 			foreach ($radii as $k => $radius) {
-				$this->addPoint($center)->translateY(-$radius)->rotate($center, $angle);
+				$points->addPoint($center)->translateY(-$radius)->rotate($center, $angle);
 				$angle->add($delta);
 			}
 		}
-		$this->reverseIfCcw($n * $count - 1);
-		return $this;
+		$points->reverseIfCcw($ccw);
+		return $points;
 	}
 
 	/**
@@ -128,15 +94,15 @@ class Points implements \IteratorAggregate
 	 * @param  Angle  $start
 	 * @param  Angle  $stop    Must be greater than <code>$start</code>.
 	 * @param  float  $radius
-	 * @return Points
 	 */
-	public function sector(Point $center, Angle $start, Angle $stop, $radius)
+	public static function sector(Point $center, Angle $start, Angle $stop, $radius, $ccw = false)
 	{
-		$this->addPoint($center);
-		$this->addPoint($center)->translateX($radius)->rotate($center, $start);
-		$this->addPoint($center)->translateX($radius)->rotate($center, $stop);
-		$this->reverseIfCcw(2);
-		return $this;
+		$points = new Points();
+		$points->addPoint($center);
+		$points->addPoint($center)->translateX($radius)->rotate($center, $start);
+		$points->addPoint($center)->translateX($radius)->rotate($center, $stop);
+		$points->reverseIfCcw($ccw);
+		return $points;
 	}
 
 	/**
@@ -147,16 +113,17 @@ class Points implements \IteratorAggregate
 	 * @param  Angle  $stop         Must be greater than <code>$start</code>.
 	 * @param  float  $radius
 	 * @param  float  $innerRadius
-	 * @return Points
 	 */
-	public function ringSector(Point $center, Angle $start, Angle $stop, $radius, $innerRadius)
+	public static function ringSector(Point $center, Angle $start, Angle $stop,
+			$radius, $innerRadius, $ccw = false)
 	{
-		if ($this->ccw) { $swap = $start; $start = $stop; $stop = $swap; }
-		$this->addPoint($center)->translateX($radius)->rotate($center, $start);
-		$this->addPoint($center)->translateX($radius)->rotate($center, $stop);
-		$this->addPoint($center)->translateX($innerRadius)->rotate($center, $stop);
-		$this->addPoint($center)->translateX($innerRadius)->rotate($center, $start);
-		return $this;
+		$points = new Points(false);
+		if ($ccw) { $swap = $start; $start = $stop; $stop = $swap; }
+		$points->addPoint($center)->translateX($radius)->rotate($center, $start);
+		$points->addPoint($center)->translateX($radius)->rotate($center, $stop);
+		$points->addPoint($center)->translateX($innerRadius)->rotate($center, $stop);
+		$points->addPoint($center)->translateX($innerRadius)->rotate($center, $start);
+		return $points;
 	}
 
 	/**
@@ -164,7 +131,6 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  Point  $center
 	 * @param  Angle  $angle
-	 * @return Points
 	 */
 	public function rotate(Point $center, Angle $angle)
 	{
@@ -179,7 +145,6 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  Point  $center
 	 * @param  float  $factor
-	 * @return Points
 	 */
 	public function scale(Point $center, $factor)
 	{
@@ -194,13 +159,13 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  Point  $center
 	 * @param  float  $factor
-	 * @return Points
 	 */
 	public function scaleX(Point $center, $factor)
 	{
 		foreach ($this->points as $point) {
 			$point->scaleX($center, $factor);
 		}
+		$this->reverseIfCcw($factor < 0);
 		return $this;
 	}
 
@@ -209,13 +174,13 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  Point  $center
 	 * @param  float  $factor
-	 * @return Points
 	 */
 	public function scaleY(Point $center, $factor)
 	{
 		foreach ($this->points as $point) {
 			$point->scaleY($center, $factor);
 		}
+		$this->reverseIfCcw($factor < 0);
 		return $this;
 	}
 
@@ -224,7 +189,6 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  Point  $center
 	 * @param  Angle  $angle
-	 * @return Points
 	 */
 	public function skewX(Point $center, Angle $angle)
 	{
@@ -239,7 +203,6 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  Point  $center
 	 * @param  Angle  $angle
-	 * @return Points
 	 */
 	public function skewY(Point $center, Angle $angle)
 	{
@@ -254,7 +217,6 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  float  $deltaX
 	 * @param  float  $deltaY
-	 * @return Points
 	 */
 	public function translate($deltaX, $deltaY)
 	{
@@ -269,7 +231,6 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  float  $deltaX
 	 * @param  float  $deltaY
-	 * @return Points
 	 */
 	public function translateX($deltaX)
 	{
@@ -284,7 +245,6 @@ class Points implements \IteratorAggregate
 	 *
 	 * @param  float  $deltaX
 	 * @param  float  $deltaY
-	 * @return Points
 	 */
 	public function translateY($deltaY)
 	{
@@ -304,11 +264,11 @@ class Points implements \IteratorAggregate
 		return $this->points;
 	}
 
-	private function reverseIfCcw($n)
+	private function reverseIfCcw($ccw)
 	{
-		if (!$this->ccw) return;
+		if (!$ccw) return;
 		$count = count($this->points);
-		for ($i = $count - $n, $k = $count - 1; $i < $k; $i++, $k--) {
+		for ($i = 0 + $this->ignoreFirst, $k = $count - 1; $i < $k; $i++, $k--) {
 			$swap = $this->points[$i];
 			$this->points[$i] = $this->points[$k];
 			$this->points[$k] = $swap;

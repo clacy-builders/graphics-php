@@ -12,32 +12,16 @@ use ML_Express\Graphics\Angle;
 
 class PointsTest extends \PHPUnit_Framework_TestCase
 {
-	public function testAddPoints()
-	{
-		$expected = [];
-		$points1 = Points::create();
-		foreach ([[2, 2], [3, 2], [3, 3], [2, 3]] as $p) {
-			$points1->addPoint(Point::create($p[0], $p[1]));
-			$expected[] = $p;
-		}
-		$points2 = Points::create();
-		foreach ([[0, 0], [1, 0], [1, 1], [0, 1]] as $p) {
-			$points2->addPoint(Point::create($p[0], $p[1]));
-			$expected[] = $p;
-		}
-		$this->assertEqualPointArrays($expected, $points1->addPoints($points2));
-	}
-
 	public function rectangleProvider()
 	{
 		return array(
 				array(
 						[[10, 20], [110, 20], [110, 100], [10, 100]],
-						Points::create()->rectangle(Point::create(10, 20), 100, 80)
+						Points::rectangle(Point::create(10, 20), 100, 80)
 				),
 				array(
 						[[10, 20], [10, 100], [110, 100], [110, 20]],
-						Points::create()->ccw()->rectangle(Point::create(10, 20), 100, 80)
+						Points::rectangle(Point::create(10, 20), 100, 80, true)
 				)
 		);
 	}
@@ -55,11 +39,11 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 		return array(
 				array(
 						[[10, -80], [110, 20], [10, 120], [-90, 20]],
-						Points::create()->polygon(Point::create(10, 20), 4, 100)
+						Points::polygon(Point::create(10, 20), 4, 100)
 				),
 				array(
 						[[10, -80], [-90, 20], [10, 120], [110, 20]],
-						Points::create()->ccw()->polygon(Point::create(10, 20), 4, 100)
+						Points::polygon(Point::create(10, 20), 4, 100, true)
 				)
 		);
 	}
@@ -77,19 +61,19 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 		return array(
 				array(
 						[[10, -80], [60, 20], [10, 120], [-40, 20]],
-						Points::create()->star(Point::create(10, 20), 2, 100, 50)
+						Points::star(Point::create(10, 20), 2, 100, 50)
 				),
 				array(
 						[[10, -80], [-40, 20], [10, 120], [60, 20]],
-						Points::create()->ccw()->star(Point::create(10, 20), 2, 100, 50)
+						Points::star(Point::create(10, 20), 2, 100, 50, true)
 				),
 				array(
 						[[10, -80], [60, 20], [10, 120], [-40, 20]],
-						Points::create()->star(Point::create(10, 20), 1, 100, [50, 100, 50])
+						Points::star(Point::create(10, 20), 1, 100, [50, 100, 50])
 				),
 				array(
 						[[10, -80], [-40, 20], [10, 120], [60, 20]],
-						Points::create()->ccw()->star(Point::create(10, 20), 1, 100, [50, 100, 50])
+						Points::star(Point::create(10, 20), 1, 100, [50, 100, 50], true)
 				)
 		);
 	}
@@ -110,11 +94,11 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 		return array(
 				array(
 						[[10, 20], [10 + $l, 20 + $l], [10 - $l, 20 + $l]],
-						Points::create()->sector(Point::create(10, 20), $a1, $a2, 100)
+						Points::sector(Point::create(10, 20), $a1, $a2, 100)
 				),
 				array(
 						[[10, 20], [10 - $l, 20 + $l], [10 + $l, 20 + $l]],
-						Points::create()->ccw()->sector(Point::create(10, 20), $a1, $a2, 100)
+						Points::sector(Point::create(10, 20), $a1, $a2, 100, true)
 				)
 		);
 	}
@@ -136,12 +120,11 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 		return array(
 				array(
 						[[10+$l1, 20+$l1], [10-$l1, 20+$l1], [10-$l2, 20+$l2], [10+$l2, 20+$l2]],
-						Points::create()->ringSector(Point::create(10, 20), $a1, $a2, 100, 50)
+						Points::ringSector(Point::create(10, 20), $a1, $a2, 100, 50)
 				),
 				array(
 						[[10-$l1, 20+$l1], [10+$l1, 20+$l1], [10+$l2, 20+$l2], [10-$l2, 20+$l2]],
-						Points::create()->ccw()
-								->ringSector(Point::create(10, 20), $a1, $a2, 100, 50)
+						Points::ringSector(Point::create(10, 20), $a1, $a2, 100, 50, true)
 				)
 		);
 	}
@@ -161,5 +144,29 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 			$pointsArray[] = [$point->x, $point->y];
 		}
 		$this->assertEquals($expected, $pointsArray);
+	}
+
+	public function scaleXProvider()
+	{
+		return array(
+				array(
+						[[-10, 20], [-10, 100], [-110, 100], [-110, 20]],
+						Points::rectangle(Point::create(10, 20), 100, 80)
+								->scaleX(Point::create(0, 0), -1)
+				),
+				array(
+						[[10, 20], [10, 100], [60, 100], [60, 20]],
+						Points::rectangle(Point::create(10, 20), 100, 80, true)
+								->scaleX(Point::create(10, 20), 0.5)
+				)
+		);
+	}
+
+	/**
+	 * @dataProvider scaleXProvider
+	 */
+	public function testScaleX($expected, $points)
+	{
+		$this->assertEqualPointArrays($expected, $points);
 	}
 }
