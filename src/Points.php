@@ -90,10 +90,11 @@ class Points implements \IteratorAggregate
 	/**
 	 * Calculates the points for a sector of a circle.
 	 *
-	 * @param  Point  $center
-	 * @param  Angle  $start
-	 * @param  Angle  $stop    Must be greater than <code>$start</code>.
-	 * @param  float  $radius
+	 * @param  Point    $center
+	 * @param  Angle    $start
+	 * @param  Angle    $stop    Must be greater than <code>$start</code>.
+	 * @param  float    $radius
+	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
 	 */
 	public static function sector(Point $center, Angle $start, Angle $stop, $radius, $ccw = false)
 	{
@@ -108,11 +109,12 @@ class Points implements \IteratorAggregate
 	/**
 	 * Calculates the points for a sector of a ring.
 	 *
-	 * @param  Point  $center
-	 * @param  Angle  $start
-	 * @param  Angle  $stop         Must be greater than <code>$start</code>.
-	 * @param  float  $radius
-	 * @param  float  $innerRadius
+	 * @param  Point    $center
+	 * @param  Angle    $start
+	 * @param  Angle    $stop         Must be greater than <code>$start</code>.
+	 * @param  float    $radius
+	 * @param  float    $innerRadius
+	 * @param  boolean  $ccw          Whether to listen the points counterclockwise or not.
 	 */
 	public static function ringSector(Point $center, Angle $start, Angle $stop,
 			$radius, $innerRadius, $ccw = false)
@@ -123,6 +125,30 @@ class Points implements \IteratorAggregate
 		$points->addPoint($center)->translateX($radius)->rotate($center, $stop);
 		$points->addPoint($center)->translateX($innerRadius)->rotate($center, $stop);
 		$points->addPoint($center)->translateX($innerRadius)->rotate($center, $start);
+		return $points;
+	}
+
+	/**
+	 * Calculates the points for a rounded rectangle.
+	 *
+	 * @param  Point    $corner  The top left corner.
+	 * @param  float    $width
+	 * @param  float    $height
+	 * @param  float    $radius
+	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
+	 */
+	public static function roundedRectangle(Point $corner, $width, $height, $radius, $ccw = false)
+	{
+		$points = new Points(false);
+		$points->addPoint($corner)->translateX($width - $radius);
+		$points->addPoint($corner)->translate($width, $radius);
+		$points->addPoint($corner)->translate($width, $height - $radius);
+		$points->addPoint($corner)->translate($width - $radius, $height);
+		$points->addPoint($corner)->translate($radius, $height);
+		$points->addPoint($corner)->translateY($height - $radius);
+		$points->addPoint($corner)->translateY($radius);
+		$points->addPoint($corner)->translateX($radius);
+		$points->reverseIfCcw($ccw);
 		return $points;
 	}
 
@@ -262,6 +288,15 @@ class Points implements \IteratorAggregate
 	public function __get($name)
 	{
 		return $this->points;
+	}
+
+	public function __toString()
+	{
+		$str = '';
+		foreach ($this->points as $point) {
+			$str .= $point->x . ',' . $point->y;
+		}
+		return $str;
 	}
 
 	private function reverseIfCcw($ccw)

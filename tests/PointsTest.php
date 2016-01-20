@@ -137,13 +137,28 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 		$this->assertEqualPointArrays($expected, $points);
 	}
 
-	public function assertEqualPointArrays($expected, Points $points)
+	public function roundedRectangleProvider()
 	{
-		$pointsArray = [];
-		foreach ($points as $point) {
-			$pointsArray[] = [$point->x, $point->y];
-		}
-		$this->assertEquals($expected, $pointsArray);
+		return array(
+				array(
+						[[100, 20], [110, 30], [110, 90], [100, 100],
+								[20, 100], [10, 90], [10, 30], [20, 20]],
+						Points::roundedRectangle(Point::create(10, 20), 100, 80, 10)
+				),
+				array(
+						[[20, 20], [10, 30], [10, 90], [20, 100],
+								[100, 100], [110, 90], [110, 30], [100, 20]],
+						Points::roundedRectangle(Point::create(10, 20), 100, 80, 10, true)
+				),
+		);
+	}
+
+	/**
+	 * @dataProvider roundedRectangleProvider
+	 */
+	public function testRoundedRectangle($expected, $points)
+	{
+		$this->assertEqualPointArrays($expected, $points);
 	}
 
 	public function scaleXProvider()
@@ -168,5 +183,14 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 	public function testScaleX($expected, $points)
 	{
 		$this->assertEqualPointArrays($expected, $points);
+	}
+
+	public function assertEqualPointArrays($expected, Points $points)
+	{
+		$pointsArray = [];
+		foreach ($points as $point) {
+			$pointsArray[] = [$point->x, $point->y];
+		}
+		$this->assertEquals($expected, $pointsArray);
 	}
 }
