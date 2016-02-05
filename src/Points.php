@@ -7,11 +7,14 @@ use ML_Express\Graphics\Angle;
 
 class Points implements \IteratorAggregate
 {
-	private $points = [];
+	private $start;
+	private $points;
 	private $ignoreFirst;
 
-	protected function __construct($ignoreFirst = true)
+	protected function __construct(Point $start = null, $ignoreFirst = true)
 	{
+		$this->points = [];
+		$this->start = $start;
 		$this->ignoreFirst = $ignoreFirst;
 	}
 
@@ -27,16 +30,28 @@ class Points implements \IteratorAggregate
 	}
 
 	/**
+	 * Adds some points.
+	 *
+	 * @param  Point[]  $points
+	 */
+	protected function addPoints($points)
+	{
+		foreach ($points as $point) {
+			$this->points[] = $point;
+		}
+	}
+
+	/**
 	 * Calculates the points for a rectangle.
 	 *
 	 * @param  Point    $corner  The top left corner.
 	 * @param  float    $width
 	 * @param  float    $height
-	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
+	 * @param  boolean  $ccw     Whether to list the points counterclockwise or not.
 	 */
 	public static function rectangle(Point $corner, $width, $height, $ccw = false)
 	{
-		$points = new Points();
+		$points = new Points($corner);
 		$points->addPoint($corner);
 		$points->addPoint($corner)->translateX($width);
 		$points->addPoint($corner)->translate($width, $height);
@@ -51,7 +66,7 @@ class Points implements \IteratorAggregate
 	 * @param  Point    $center
 	 * @param  int      $n       Number of corners.
 	 * @param  float    $radius
-	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
+	 * @param  boolean  $ccw     Whether to list the points counterclockwise or not.
 	 */
 	public static function polygon(Point $center, $n, $radius, $ccw = false)
 	{
@@ -65,11 +80,11 @@ class Points implements \IteratorAggregate
 	 * @param  int            $n          Number of corners of the underlying polygon.
 	 * @param  float          $radius
 	 * @param  float|float[]  $starRadii
-	 * @param  boolean        $ccw        Whether to listen the points counterclockwise or not.
+	 * @param  boolean        $ccw        Whether to list the points counterclockwise or not.
 	 */
 	public static function star(Point $center, $n, $radius, $starRadii = [], $ccw = false)
 	{
-		$points = new Points();
+		$points = new Points($center);
 		if (!is_array($starRadii)) {
 			$starRadii = [$starRadii];
 		}
@@ -87,6 +102,21 @@ class Points implements \IteratorAggregate
 		return $points;
 	}
 
+	public static function rotated(Point $center, $n, $pointsArray, $ccw = false)
+	{
+		$points = new Points($center, false);
+		$delta = deg2rad(360) / $n;
+		$angle = Angle::create(0);
+		for ($i = 0; $i < $n; $i++) {
+			foreach ($pointsArray as $point) {
+				$points->addPoint($point)->rotate($center, $angle);
+			}
+			$angle->add($delta);
+		}
+		$points->reverseIfCcw($ccw);
+		return $points;
+	}
+
 	/**
 	 * Calculates the points for a sector of a circle.
 	 *
@@ -94,11 +124,11 @@ class Points implements \IteratorAggregate
 	 * @param  Angle    $start
 	 * @param  Angle    $stop    Must be greater than <code>$start</code>.
 	 * @param  float    $radius
-	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
+	 * @param  boolean  $ccw     Whether to list the points counterclockwise or not.
 	 */
 	public static function sector(Point $center, Angle $start, Angle $stop, $radius, $ccw = false)
 	{
-		$points = new Points();
+		$points = new Points($center);
 		$points->addPoint($center);
 		$points->addPoint($center)->translateX($radius)->rotate($center, $start);
 		$points->addPoint($center)->translateX($radius)->rotate($center, $stop);
@@ -114,12 +144,12 @@ class Points implements \IteratorAggregate
 	 * @param  Angle    $stop         Must be greater than <code>$start</code>.
 	 * @param  float    $radius
 	 * @param  float    $innerRadius
-	 * @param  boolean  $ccw          Whether to listen the points counterclockwise or not.
+	 * @param  boolean  $ccw          Whether to list the points counterclockwise or not.
 	 */
 	public static function ringSector(Point $center, Angle $start, Angle $stop,
 			$radius, $innerRadius, $ccw = false)
 	{
-		$points = new Points(false);
+		$points = new Points($center, false);
 		if ($ccw) { $swap = $start; $start = $stop; $stop = $swap; }
 		$points->addPoint($center)->translateX($radius)->rotate($center, $start);
 		$points->addPoint($center)->translateX($radius)->rotate($center, $stop);
@@ -135,11 +165,11 @@ class Points implements \IteratorAggregate
 	 * @param  float    $width
 	 * @param  float    $height
 	 * @param  float    $radius
-	 * @param  boolean  $ccw     Whether to listen the points counterclockwise or not.
+	 * @param  boolean  $ccw     Whether to list the points counterclockwise or not.
 	 */
 	public static function roundedRectangle(Point $corner, $width, $height, $radius, $ccw = false)
 	{
-		$points = new Points(false);
+		$points = new Points($corner, false);
 		$points->addPoint($corner)->translateX($width - $radius);
 		$points->addPoint($corner)->translate($width, $radius);
 		$points->addPoint($corner)->translate($width, $height - $radius);
@@ -163,6 +193,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->rotate($center, $angle);
 		}
+		$this->start->rotate($center, $angle);
 		return $this;
 	}
 
@@ -177,6 +208,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->scale($center, $factor);
 		}
+		$this->start->scale($center, $factor);
 		return $this;
 	}
 
@@ -191,6 +223,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->scaleX($center, $factor);
 		}
+		$this->start->scaleX($center, $factor);
 		$this->reverseIfCcw($factor < 0);
 		return $this;
 	}
@@ -206,6 +239,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->scaleY($center, $factor);
 		}
+		$this->start->scaleX($center, $factor);
 		$this->reverseIfCcw($factor < 0);
 		return $this;
 	}
@@ -221,6 +255,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->skewX($center, $angle);
 		}
+		$this->start->skewX($center, $angle);
 		return $this;
 	}
 
@@ -235,6 +270,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->skewY($center, $angle);
 		}
+		$this->start->skewY($center, $angle);
 		return $this;
 	}
 
@@ -249,6 +285,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->translate($deltaX, $deltaY);
 		}
+		$this->start->translate($deltaX, $deltaY);
 		return $this;
 	}
 
@@ -263,6 +300,7 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->translateX($deltaX);
 		}
+		$this->start->translateX($deltaX);
 		return $this;
 	}
 
@@ -277,7 +315,13 @@ class Points implements \IteratorAggregate
 		foreach ($this->points as $point) {
 			$point->translateY($deltaY);
 		}
+		$this->start->translateY($deltaY);
 		return $this;
+	}
+
+	public function copy()
+	{
+		return clone $this;
 	}
 
 	public function getIterator()
@@ -287,7 +331,7 @@ class Points implements \IteratorAggregate
 
 	public function __get($name)
 	{
-		return $this->points;
+		return $this->{$name};
 	}
 
 	public function __toString()

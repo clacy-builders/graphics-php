@@ -86,6 +86,31 @@ class PointsTest extends \PHPUnit_Framework_TestCase
 		$this->assertEqualPointArrays($expected, $points);
 	}
 
+	public function rotatedProvider()
+	{
+		return array(
+				array(
+						[[-2, -4], [2, -4], [4, -2], [4, 2], [2, 4], [-2, 4], [-4, 2], [-4, -2]],
+						Points::rotated(Point::create(0, 0), 4, [Point::create(-2, -4),
+								Point::create(2, -4)])
+				),
+				array(
+						[[-4, -2], [-4, 2], [-2, 4], [2, 4], [4, 2], [4, -2], [2, -4], [-2, -4]],
+						Points::rotated(Point::create(0, 0), 4, [Point::create(-2, -4),
+								Point::create(2, -4)], true)
+				),
+		);
+	}
+
+	/**
+	 * @dataProvider rotatedProvider
+	 */
+	public function testRotated($expected, $points)
+	{
+		$this->assertEqualPointArrays($expected, $points);
+	}
+
+
 	public function sectorProvider()
 	{
 		$a1 = Angle::byDegrees(45);
