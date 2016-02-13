@@ -321,7 +321,11 @@ class Points implements \IteratorAggregate
 
 	public function copy()
 	{
-		return clone $this;
+		$copy = new Points($this->start->copy(), $this->ignoreFirst);
+		foreach ($this->points as $point) {
+			$copy->addPoint($point->copy());
+		}
+		return $copy;
 	}
 
 	public function getIterator()
