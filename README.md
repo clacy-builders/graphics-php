@@ -12,7 +12,7 @@ Add the following to your project's `composer.json` file:
 {
     "minimum-stability": "dev",
     "require": {
-        "ml-express/graphics": "dev-master@dev"
+        "ml-express/graphics": "0.1"
     }
 }
 ```
