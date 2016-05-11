@@ -1,14 +1,14 @@
 <?php
 
-namespace ML_Express\Graphics\Tests;
+namespace ClacyBuilders\Graphics\Tests;
 
 require_once 'src/Points.php';
 require_once 'src/Point.php';
 require_once 'src/Angle.php';
 
-use ML_Express\Graphics\Points;
-use ML_Express\Graphics\Point;
-use ML_Express\Graphics\Angle;
+use ClacyBuilders\Graphics\Points;
+use ClacyBuilders\Graphics\Point;
+use ClacyBuilders\Graphics\Angle;
 
 class PointsTest extends \PHPUnit_Framework_TestCase
 {

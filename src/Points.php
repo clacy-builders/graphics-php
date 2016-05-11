@@ -1,9 +1,9 @@
 <?php
 
-namespace ML_Express\Graphics;
+namespace ClacyBuilders\Graphics;
 
-use ML_Express\Graphics\Point;
-use ML_Express\Graphics\Angle;
+use ClacyBuilders\Graphics\Point;
+use ClacyBuilders\Graphics\Angle;
 
 class Points implements \IteratorAggregate
 {

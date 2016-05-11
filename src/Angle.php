@@ -1,6 +1,6 @@
 <?php
 
-namespace ML_Express\Graphics;
+namespace ClacyBuilders\Graphics;
 
 class Angle
 {

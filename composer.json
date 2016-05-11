@@ -1,5 +1,5 @@
 {
-	"name": "ml-express/graphics",
+	"name": "clacy-builders/graphics",
 	"type": "library",
 	"description": "Intended for use with SVG Express.",
 	"license": "MIT",
@@ -9,7 +9,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"ML_Express\\Graphics\\": "src/"
+			"ClacyBuilders\\Graphics\\": "src/"
 		}
 	}
 }

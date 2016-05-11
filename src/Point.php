@@ -1,8 +1,8 @@
 <?php
 
-namespace ML_Express\Graphics;
+namespace ClacyBuilders\Graphics;
 
-use ML_Express\Graphics\Angle;
+use ClacyBuilders\Graphics\Angle;
 
 class Point
 {
