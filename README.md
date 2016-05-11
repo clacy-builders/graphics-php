@@ -12,7 +12,7 @@ Add the following to your project's `composer.json` file:
 {
     "minimum-stability": "dev",
     "require": {
-        "clacy-builders/graphics": "0.1"
+        "clacy-builders/graphics": "dev-master@dev"
     }
 }
 ```
